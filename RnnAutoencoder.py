@@ -79,4 +79,6 @@ reconstructed_sequences = torch.stack(reconstructed_sequences)
 #均方误差
 accuracy = torch.mean((reconstructed_sequences - graph_representations) ** 2)
 
-print("Reconstruction Accuracy:", accuracy.item())
+# print("Reconstruction Accuracy:", accuracy.item())
+
+
