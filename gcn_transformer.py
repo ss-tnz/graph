@@ -53,7 +53,7 @@ input_vocab_size = num_features
 output_vocab_size = num_features  # You can adjust this based on your task
 batch_size = 32
 learning_rate = 0.001
-num_epochs = 10
+num_epochs = 100
 
 #位置编码，固定
 class PositionalEncoding(nn.Module):
@@ -254,7 +254,7 @@ train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True
 
 test_dataset = TensorDataset(test_data)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-
+print(test_data)
 
 model = Transformer(num_layers, d_model, num_heads, d_ff, hidden_dim, hidden_dim, num_nodes)
 
@@ -284,17 +284,26 @@ for epoch in range(num_epochs):
 
     # 在测试集上进行评估
     test_loss = 0
+    test_data = []
     with torch.no_grad():
+        all_decoded_outputs = []
         for batch in test_dataloader:
             inputs = batch[0]
             decoder_outputs = model(inputs, mask=None)
+            all_decoded_outputs.append(decoder_outputs)
             loss = criterion(decoder_outputs, inputs)
             test_loss += loss.item()
 
+
     avg_test_loss = test_loss / len(test_dataloader)
     test_losses.append(avg_test_loss)
-
+    combined_decoded_outputs = torch.cat(all_decoded_outputs, dim=0)
     print(f"Epoch [{epoch + 1}/{num_epochs}] - Train Loss: {avg_train_loss:.4f} - Test Loss: {avg_test_loss:.4f}")
+    output_file_path = 'decoded_outputs.pth'
+    torch.save(combined_decoded_outputs, output_file_path)
+
+
+
 
 # 绘制损失图
 plt.plot(range(num_epochs), train_losses, label='Train Loss')
@@ -304,3 +313,4 @@ plt.ylabel('Loss')
 plt.title('Training and Test Loss')
 plt.legend()
 plt.show()
+plt.savefig('loss_curve.png')
